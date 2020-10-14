@@ -22,7 +22,7 @@ const Product = ({ match }) => {
       setProduct(response.data);
     };
     fetchProduct();
-  }, []);
+  }, [match]);
 
   return (
     <Layout>

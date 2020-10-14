@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Products from "../common/Products";
 import Layout from "../Layout/Layout";
 import axios from "axios";
@@ -9,7 +9,7 @@ const Home = () => {
 
   useEffect(() => {
     const fetchAllProducts = async () => {
-      const response = await axios.get("/apo/products");
+      const response = await axios.get("/api/products");
 
       setProducts(response.data);
     };
