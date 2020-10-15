@@ -8,6 +8,7 @@ const app = express();
 
 const { errorHandler, errorNotFound } = require("./middleware/errorHandler");
 const productRoutes = require("./routes/product");
+const userRoutes = require("./routes/user");
 
 //database connection
 mongoose
@@ -27,7 +28,10 @@ app.use(bodyParser.json());
 app.use(cors());
 
 //route middleware
-app.use("/api", productRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/users", userRoutes);
+
+//intests->pm.environment.set('TOEKN',pm.response.json().token)
 
 //error middleware
 app.use(errorNotFound);
