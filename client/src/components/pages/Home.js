@@ -3,18 +3,18 @@ import { useDispatch, useSelector } from "react-redux";
 import Products from "../common/Products";
 import Layout from "../Layout/Layout";
 import { Alert, Col, Row } from "react-bootstrap";
-import { fetchProduct } from "../../actions/productAction";
+import { productList } from "../../actions/productAction";
 import Loader from "../common/Loader";
 
 const Home = () => {
   const dispatch = useDispatch();
 
-  const productList = useSelector((state) => state.productList);
+  const productListR = useSelector((state) => state.productListR);
 
-  const { error, loading, products } = productList;
+  const { error, loading, products } = productListR;
 
   useEffect(() => {
-    dispatch(fetchProduct());
+    dispatch(productList());
   }, [dispatch]);
 
   return (
