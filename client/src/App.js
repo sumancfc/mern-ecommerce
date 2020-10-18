@@ -6,14 +6,22 @@ import Cart from "./components/pages/Cart";
 import Login from "./components/pages/Login";
 import Register from "./components/pages/Register";
 import Profile from "./components/pages/Profile";
+import Shipping from "./components/pages/Shipping";
+import Payment from "./components/pages/Payment";
+import PlaceOrder from "./components/pages/PlaceOrder";
+import Order from "./components/pages/Order";
 
 function App() {
   return (
     <Router>
       <Switch>
+        <Route path='/shipping' component={Shipping} />
+        <Route path='/order/:id' component={Order} />
+        <Route path='/payment' component={Payment} />
+        <Route path='/placeorder' component={PlaceOrder} />
+        <Route path='/profile' component={Profile} />
         <Route path='/login' exact component={Login} />
         <Route path='/register' component={Register} />
-        <Route path='/profile' component={Profile} />
         <Route path='/product/:id' exact component={Product} />
         <Route path='/cart/:id?' component={Cart} />
         <Route path='/' exact component={Home} />

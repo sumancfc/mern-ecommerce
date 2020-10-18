@@ -6,6 +6,7 @@ import Layout from "../Layout/Layout";
 import Message from "../../components/common/Message";
 import Loader from "../../components/common/Loader";
 import { detailsUser, updateUserProfile } from "../../actions/userAction";
+import { myOrderList } from "../../actions/orderAction";
 
 const Profile = ({ location, history }) => {
   const [name, setName] = useState("");
@@ -25,8 +26,8 @@ const Profile = ({ location, history }) => {
   const userProfileUpdate = useSelector((state) => state.userProfileUpdate);
   const { success } = userProfileUpdate;
 
-  //   const orderListMy = useSelector((state) => state.orderListMy);
-  //   const { loading: loadingOrders, error: errorOrders, orders } = orderListMy;
+  const myOrder = useSelector((state) => state.myOrder);
+  const { loading: loadingOrders, error: errorOrders, orders } = myOrder;
 
   useEffect(() => {
     if (!userInfo) {
@@ -34,7 +35,7 @@ const Profile = ({ location, history }) => {
     } else {
       if (!user.name) {
         dispatch(detailsUser("profile"));
-        // dispatch(listMyOrders());
+        dispatch(myOrderList());
       } else {
         setName(user.name);
         setEmail(user.email);
@@ -65,7 +66,7 @@ const Profile = ({ location, history }) => {
             <Form.Group controlId='name'>
               <Form.Label>Name</Form.Label>
               <Form.Control
-                type='name'
+                type='text'
                 placeholder='Enter name'
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -109,54 +110,60 @@ const Profile = ({ location, history }) => {
         </Col>
         <Col md={9}>
           <h2>My Orders</h2>
-          {/* {loadingOrders ? (
-          <Loader />
-        ) : errorOrders ? (
-          <Message variant='danger'>{errorOrders}</Message>
-        ) : (
-          <Table striped bordered hover responsive className='table-sm'>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>DATE</th>
-                <th>TOTAL</th>
-                <th>PAID</th>
-                <th>DELIVERED</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders.map((order) => (
-                <tr key={order._id}>
-                  <td>{order._id}</td>
-                  <td>{order.createdAt.substring(0, 10)}</td>
-                  <td>{order.totalPrice}</td>
-                  <td>
-                    {order.isPaid ? (
-                      order.paidAt.substring(0, 10)
-                    ) : (
-                      <i className='fas fa-times' style={{ color: "red" }}></i>
-                    )}
-                  </td>
-                  <td>
-                    {order.isDelivered ? (
-                      order.deliveredAt.substring(0, 10)
-                    ) : (
-                      <i className='fas fa-times' style={{ color: "red" }}></i>
-                    )}
-                  </td>
-                  <td>
-                    <LinkContainer to={`/order/${order._id}`}>
-                      <Button className='btn-sm' variant='light'>
-                        Details
-                      </Button>
-                    </LinkContainer>
-                  </td>
+          {loadingOrders ? (
+            <Loader />
+          ) : errorOrders ? (
+            <Message variant='danger'>{errorOrders}</Message>
+          ) : (
+            <Table striped bordered hover responsive className='table-sm'>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>DATE</th>
+                  <th>TOTAL</th>
+                  <th>PAID</th>
+                  <th>DELIVERED</th>
+                  <th></th>
                 </tr>
-              ))}
-            </tbody>
-          </Table>
-        )} */}
+              </thead>
+              <tbody>
+                {orders.map((order) => (
+                  <tr key={order._id}>
+                    <td>{order._id}</td>
+                    <td>{order.createdAt.substring(0, 10)}</td>
+                    <td>{order.totalPrice}</td>
+                    <td>
+                      {order.isPaid ? (
+                        order.paidAt.substring(0, 10)
+                      ) : (
+                        <i
+                          className='fas fa-times'
+                          style={{ color: "red" }}
+                        ></i>
+                      )}
+                    </td>
+                    <td>
+                      {order.isDelivered ? (
+                        order.deliveredAt.substring(0, 10)
+                      ) : (
+                        <i
+                          className='fas fa-times'
+                          style={{ color: "red" }}
+                        ></i>
+                      )}
+                    </td>
+                    <td>
+                      <Link to={`/order/${order._id}`}>
+                        <Button className='btn-sm' variant='light'>
+                          Details
+                        </Button>
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          )}
         </Col>
       </Row>
     </Layout>
