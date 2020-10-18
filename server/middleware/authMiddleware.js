@@ -29,3 +29,12 @@ exports.auth = asycnHandler(async (req, res, next) => {
     throw new Error("No authorized, no token");
   }
 });
+
+exports.isAdmin = (req, res, next) => {
+  if (req.user && req.user.isAdmin) {
+    next();
+  } else {
+    res.status(401);
+    throw new Error("No Admin, access denied");
+  }
+};

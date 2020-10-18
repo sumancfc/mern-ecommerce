@@ -12,9 +12,6 @@ const Header = ({ history }) => {
 
   const logoutHandler = () => {
     dispatch(logout());
-    if (!userInfo) {
-      history.redirect("/");
-    }
   };
 
   return (
@@ -31,19 +28,33 @@ const Header = ({ history }) => {
             <LinkContainer to='/cart'>
               <Nav.Link>Cart</Nav.Link>
             </LinkContainer>
+
             {userInfo ? (
               <NavDropdown title={userInfo.name} id='username'>
                 <LinkContainer to='/profile'>
                   <NavDropdown.Item>Profile</NavDropdown.Item>
                 </LinkContainer>
-                <NavDropdown.Item onClick={() => logoutHandler()}>
+                <NavDropdown.Item onClick={logoutHandler}>
                   Logout
                 </NavDropdown.Item>
               </NavDropdown>
             ) : (
               <LinkContainer to='/login'>
-                <Nav.Link>Login</Nav.Link>
+                <Nav.Link>
+                  <i className='fas fa-user'></i> Login
+                </Nav.Link>
               </LinkContainer>
+            )}
+
+            {userInfo && userInfo.isAdmin && (
+              <NavDropdown title='Admin' id='adminmenu'>
+                <LinkContainer to='/admin/userlist'>
+                  <NavDropdown.Item>User List</NavDropdown.Item>
+                </LinkContainer>
+                <LinkContainer to='/admin/productlist'>
+                  <NavDropdown.Item>Product List</NavDropdown.Item>
+                </LinkContainer>
+              </NavDropdown>
             )}
           </Nav>
         </Container>

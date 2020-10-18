@@ -10,20 +10,24 @@ import Shipping from "./components/pages/Shipping";
 import Payment from "./components/pages/Payment";
 import PlaceOrder from "./components/pages/PlaceOrder";
 import Order from "./components/pages/Order";
+import UserList from "./components/pages/UserList";
+import EditUser from "./components/pages/EditUser";
 
 function App() {
   return (
     <Router>
       <Switch>
-        <Route path='/shipping' component={Shipping} />
         <Route path='/order/:id' component={Order} />
+        <Route path='/shipping' component={Shipping} />
         <Route path='/payment' component={Payment} />
         <Route path='/placeorder' component={PlaceOrder} />
-        <Route path='/profile' component={Profile} />
         <Route path='/login' exact component={Login} />
         <Route path='/register' component={Register} />
+        <Route path='/profile' component={Profile} />
         <Route path='/product/:id' exact component={Product} />
         <Route path='/cart/:id?' component={Cart} />
+        <Route path='/admin/userlist' component={UserList} />
+        <Route path='/admin/user/:id/edit' component={EditUser} />
         <Route path='/' exact component={Home} />
       </Switch>
     </Router>
