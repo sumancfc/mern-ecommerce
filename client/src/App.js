@@ -12,6 +12,9 @@ import PlaceOrder from "./components/pages/PlaceOrder";
 import Order from "./components/pages/Order";
 import UserList from "./components/pages/UserList";
 import EditUser from "./components/pages/EditUser";
+import ProductList from "./components/pages/ProductList";
+import ProductCreate from "./components/pages/ProductCreate";
+import ProductEdit from "./components/pages/ProductEdit";
 
 function App() {
   return (
@@ -25,9 +28,13 @@ function App() {
         <Route path='/register' component={Register} />
         <Route path='/profile' component={Profile} />
         <Route path='/product/:id' exact component={Product} />
+
         <Route path='/cart/:id?' component={Cart} />
         <Route path='/admin/userlist' component={UserList} />
         <Route path='/admin/user/:id/edit' component={EditUser} />
+        <Route path='/admin/productlist' exact component={ProductList} />
+        <Route path='/admin/product/:id/edit' exact component={ProductEdit} />
+        <Route path='/admin/createproduct' exact component={ProductCreate} />
         <Route path='/' exact component={Home} />
       </Switch>
     </Router>
