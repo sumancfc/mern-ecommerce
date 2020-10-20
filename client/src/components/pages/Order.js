@@ -1,11 +1,19 @@
 import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { Col, Row, ListGroup, Image, Card } from "react-bootstrap";
+import { Col, Row, ListGroup, Image, Card, Button } from "react-bootstrap";
 import Layout from "../Layout/Layout";
-import Message from "../common/Message";
-import { getOrderDetails } from "../../actions/orderAction";
 import Loader from "../common/Loader";
+import Message from "../common/Message";
+import {
+  getOrderDetails,
+  payOrder,
+  deliverOrder,
+} from "../../actions/orderAction";
+import {
+  ORDER_PAY_RESET,
+  ORDER_DELIVER_RESET,
+} from "../../constant/orderConstant";
 
 const Order = ({ history, match }) => {
   const orderID = match.params.id;
@@ -15,6 +23,15 @@ const Order = ({ history, match }) => {
   const orderDetails = useSelector((state) => state.orderDetails);
   const { order, loading, error } = orderDetails;
 
+  const orderPay = useSelector((state) => state.orderPay);
+  const { loading: loadingPay, success: successPay } = orderPay;
+
+  const orderDeliver = useSelector((state) => state.orderDeliver);
+  const { loading: loadingDeliver, success: successDeliver } = orderDeliver;
+
+  const userLogin = useSelector((state) => state.userLogin);
+  const { userInfo } = userLogin;
+
   if (!loading) {
     order.itemsPrice = order.orderItems.reduce(
       (acc, item) => acc + item.price * item.qty,
@@ -23,8 +40,24 @@ const Order = ({ history, match }) => {
   }
 
   useEffect(() => {
-    dispatch(getOrderDetails(orderID));
-  }, [dispatch, orderID]);
+    if (!userInfo) {
+      history.push("/login");
+    }
+
+    if (!order || successPay || successDeliver) {
+      dispatch({ type: ORDER_PAY_RESET });
+      dispatch({ type: ORDER_DELIVER_RESET });
+      dispatch(getOrderDetails(orderID));
+    }
+  }, [dispatch, orderID, order, successDeliver]);
+
+  const deliverHandler = () => {
+    dispatch(deliverOrder(order));
+  };
+
+  const payHandler = () => {
+    dispatch(payOrder(order));
+  };
 
   return loading ? (
     <Loader />
@@ -136,6 +169,32 @@ const Order = ({ history, match }) => {
                   <Col>${order.totalPrice}</Col>
                 </Row>
               </ListGroup.Item>
+
+              {loadingPay && <Loader />}
+              {userInfo && userInfo.isAdmin && !order.isPaid && (
+                <ListGroup.Item>
+                  <Button
+                    type='button'
+                    className='btn btn-block'
+                    onClick={payHandler}
+                  >
+                    Mark As Paid
+                  </Button>
+                </ListGroup.Item>
+              )}
+
+              {loadingDeliver && <Loader />}
+              {userInfo && userInfo.isAdmin && !order.isDelivered && (
+                <ListGroup.Item>
+                  <Button
+                    type='button'
+                    className='btn btn-block'
+                    onClick={deliverHandler}
+                  >
+                    Mark As Delivered
+                  </Button>
+                </ListGroup.Item>
+              )}
             </ListGroup>
           </Card>
         </Col>

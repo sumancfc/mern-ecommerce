@@ -1,3 +1,4 @@
+const path = require("path");
 const express = require("express");
 const mongoose = require("mongoose");
 require("dotenv").config();
@@ -10,6 +11,7 @@ const { errorHandler, errorNotFound } = require("./middleware/errorHandler");
 const productRoutes = require("./routes/product");
 const userRoutes = require("./routes/user");
 const orderRoutes = require("./routes/order");
+const uploadRoutes = require("./routes/upload");
 
 //database connection
 mongoose
@@ -27,11 +29,14 @@ mongoose
 //middleware
 app.use(bodyParser.json());
 app.use(cors());
+// const __dirname = path.resolve();
+app.use("/uploads", express.static(path.join(__dirname, "/uploads")));
 
 //route middleware
 app.use("/api/products", productRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/orders", orderRoutes);
+app.use("/api/upload", uploadRoutes);
 
 //intests->pm.environment.set('TOEKN',pm.response.json().token)
 

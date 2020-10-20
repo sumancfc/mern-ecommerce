@@ -15,6 +15,7 @@ import EditUser from "./components/pages/EditUser";
 import ProductList from "./components/pages/ProductList";
 import ProductCreate from "./components/pages/ProductCreate";
 import ProductEdit from "./components/pages/ProductEdit";
+import OrderList from "./components/pages/OrderList";
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
         <Route path='/admin/productlist' exact component={ProductList} />
         <Route path='/admin/product/:id/edit' exact component={ProductEdit} />
         <Route path='/admin/createproduct' exact component={ProductCreate} />
+        <Route path='/admin/orderlist' exact component={OrderList} />
         <Route path='/' exact component={Home} />
       </Switch>
     </Router>
