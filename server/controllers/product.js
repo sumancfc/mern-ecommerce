@@ -1,9 +1,10 @@
 const Product = require("../model/Product");
 const asyncHandler = require("express-async-handler");
 
+//Get all products
 exports.getProducts = asyncHandler(async (req, res) => {
-  // const pageSize = 2;
-  // const page = Number(req.query.pageNunber) || 1;
+  const pageSize = 10;
+  const page = Number(req.query.pageNunber) || 1;
   const keyword = req.query.keyword
     ? {
         name: {
@@ -13,15 +14,15 @@ exports.getProducts = asyncHandler(async (req, res) => {
       }
     : {};
 
-  // const count = await Product.countDocuments({...keyword})
-  const products = await Product.find({ ...keyword });
-  // .limit(pageSize)
-  // .skip(pageSize * (page -1))
+  const count = await Product.countDocuments({ ...keyword });
+  const products = await Product.find({ ...keyword })
+    .limit(pageSize)
+    .skip(pageSize * (page - 1));
 
-  res.status(200).json(products);
-  // res.status(200).json({ products, page, pages: Math.ceil(count / pageSize) });
+  res.status(200).json({ products, page, pages: Math.ceil(count / pageSize) });
 });
 
+//Get product by id
 exports.getProductById = asyncHandler(async (req, res) => {
   const product = await Product.findById(req.params.id);
 
@@ -32,6 +33,7 @@ exports.getProductById = asyncHandler(async (req, res) => {
   }
 });
 
+//Create Product
 exports.createProduct = asyncHandler(async (req, res) => {
   const { name, price, brand, category, description, countInStock } = req.body;
 
@@ -53,6 +55,7 @@ exports.createProduct = asyncHandler(async (req, res) => {
   res.json(createdProduct);
 });
 
+//Update Product
 exports.updateProduct = asyncHandler(async (req, res) => {
   const {
     name,
@@ -61,8 +64,6 @@ exports.updateProduct = asyncHandler(async (req, res) => {
     brand,
     category,
     description,
-    rating,
-    numReviews,
     countInStock,
   } = req.body;
 
@@ -75,8 +76,6 @@ exports.updateProduct = asyncHandler(async (req, res) => {
     product.brand = brand;
     product.category = category;
     product.description = description;
-    product.rating = 0;
-    product.numReviews = 0;
     product.countInStock = countInStock;
 
     const updatedProduct = await product.save();
@@ -88,6 +87,7 @@ exports.updateProduct = asyncHandler(async (req, res) => {
   }
 });
 
+//Delete Product
 exports.deleteProduct = asyncHandler(async (req, res) => {
   const product = await Product.findById(req.params.id);
 
@@ -99,6 +99,7 @@ exports.deleteProduct = asyncHandler(async (req, res) => {
   }
 });
 
+//Review Product
 exports.reviewProduct = asyncHandler(async (req, res) => {
   const { rating, comment } = req.body;
 
