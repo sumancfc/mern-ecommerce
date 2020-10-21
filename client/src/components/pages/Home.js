@@ -6,16 +6,19 @@ import { Alert, Col, Row } from "react-bootstrap";
 import { productList } from "../../actions/productAction";
 import Loader from "../common/Loader";
 
-const Home = () => {
+const Home = ({ match }) => {
+  const keyword = match.params.keyword;
+
+  // const pageNumber = match.params.pageNumber || 1
+
   const dispatch = useDispatch();
 
   const productListR = useSelector((state) => state.productListR);
-
   const { error, loading, products } = productListR;
 
   useEffect(() => {
-    dispatch(productList());
-  }, [dispatch]);
+    dispatch(productList(keyword));
+  }, [dispatch, keyword]);
 
   return (
     <Layout>

@@ -37,6 +37,13 @@ function App() {
         <Route path='/admin/product/:id/edit' exact component={ProductEdit} />
         <Route path='/admin/createproduct' exact component={ProductCreate} />
         <Route path='/admin/orderlist' exact component={OrderList} />
+        <Route path='/search/:keyword' component={Home} exact />
+        <Route path='/page/:pageNumber' component={Home} exact />
+        <Route
+          path='/search/:keyword/page/:pageNumber'
+          component={Home}
+          exact
+        />
         <Route path='/' exact component={Home} />
       </Switch>
     </Router>
