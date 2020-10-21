@@ -49,7 +49,7 @@ const Order = ({ history, match }) => {
       dispatch({ type: ORDER_DELIVER_RESET });
       dispatch(getOrderDetails(orderID));
     }
-  }, [dispatch, orderID, order, successDeliver]);
+  }, [dispatch, history, userInfo, orderID, order, successDeliver, successPay]);
 
   const deliverHandler = () => {
     dispatch(deliverOrder(order));
