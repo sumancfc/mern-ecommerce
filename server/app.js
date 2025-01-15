@@ -15,12 +15,7 @@ const uploadRoutes = require("./routes/upload");
 
 //database connection
 mongoose
-  .connect(process.env.DATABASE, {
-    useCreateIndex: true,
-    useFindAndModify: false,
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(process.env.DATABASE)
   .then(() => {
     console.log("Database Connected");
   })
