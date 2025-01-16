@@ -1,10 +1,21 @@
-exports.errorNotFound = (req, res, next) => {
+import { Request, Response, NextFunction } from "express";
+
+export const errorNotFound = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const error = new Error(`Not found - ${req.originalUrl}`);
   res.status(404);
   next(error);
 };
 
-exports.errorHandler = (err, req, res, next) => {
+export const errorHandler = (
+  err: Error,
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
   res.status(statusCode);
   res.json({

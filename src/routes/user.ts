@@ -1,4 +1,4 @@
-const router = require("express").Router();
+import { Router } from "express";
 
 const {
   register,
@@ -12,6 +12,8 @@ const {
 } = require("../controllers/user");
 const { auth, isAdmin } = require("../middleware/authMiddleware");
 
+const router: Router = Router();
+
 router.route("/").post(register).get(auth, isAdmin, getAllUsers);
 router.post("/login", login);
 router.route("/profile").get(auth, getUserProfile).put(auth, updateUserProfile);
@@ -21,4 +23,4 @@ router
   .put(auth, isAdmin, updateUser)
   .delete(auth, isAdmin, deleteUser);
 
-module.exports = router;
+export default router;
