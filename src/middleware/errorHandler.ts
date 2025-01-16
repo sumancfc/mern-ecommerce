@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 
+// Middleware for handling 404 errors
 export const errorNotFound = (
   req: Request,
   res: Response,
@@ -10,6 +11,7 @@ export const errorNotFound = (
   next(error);
 };
 
+// General error handling middleware
 export const errorHandler = (
   err: Error,
   req: Request,
@@ -17,10 +19,10 @@ export const errorHandler = (
   next: NextFunction
 ) => {
   const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
-  res.status(statusCode);
-  res.json({
+
+  // Send response with error details
+  res.status(statusCode).json({
     message: err.message,
     stack: process.env.NODE_ENV === "production" ? null : err.stack,
   });
-  next();
 };

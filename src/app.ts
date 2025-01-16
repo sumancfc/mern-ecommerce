@@ -14,9 +14,9 @@ const port: string | number = process.env.PORT || 8000;
 
 // Database Connection
 mongoose
-  .connect(process.env.DATABASE as string)
-  .then(() => console.log("Connected to DB"))
-  .catch((err) => console.log("Database Connection Error:", err));
+    .connect(process.env.DATABASE as string)
+    .then(() => console.log("Connected to DB"))
+    .catch((err) => console.log("Database Connection Error:", err));
 
 // Middleware
 app.use(express.json());
