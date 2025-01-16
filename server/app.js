@@ -1,9 +1,10 @@
 const path = require("path");
 const express = require("express");
 const mongoose = require("mongoose");
-require("dotenv").config();
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const morgan = require("morgan");
+require("dotenv").config();
 
 const app = express();
 
@@ -22,6 +23,7 @@ mongoose
   .catch((err) => console.log(err));
 
 //middleware
+app.use(morgan("dev"));
 app.use(bodyParser.json());
 app.use(cors());
 // const __dirname = path.resolve();
