@@ -7,6 +7,7 @@ import dotenv from "dotenv";
 import { errorHandler, errorNotFound } from "./middleware/errorHandler";
 import userRoutes from "./routes/user";
 import productRoutes from "./routes/product";
+import orderRoutes from "./routes/order";
 
 dotenv.config();
 
@@ -28,6 +29,7 @@ app.use(cors());
 // Route Middleware
 app.use("/api/users", userRoutes);
 app.use("/api/products", productRoutes);
+app.use("/api/orders", orderRoutes);
 
 //intests->pm.environment.set('TOEKN',pm.response.json().token)
 
