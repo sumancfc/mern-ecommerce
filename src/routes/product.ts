@@ -1,6 +1,5 @@
-const router = require("express").Router();
-
-const {
+import { Router } from "express";
+import {
   getProducts,
   getProductById,
   createProduct,
@@ -8,16 +7,18 @@ const {
   deleteProduct,
   reviewProduct,
   // bestProducts
-} = require("../controllers/product");
-const { auth, isAdmin } = require("../middleware/authMiddleware");
+} from "../controllers/product";
+import { auth, authAdmin } from "../middleware/authMiddleware";
 
-router.route("/").get(getProducts).post(auth, isAdmin, createProduct);
+const router: Router = Router();
+
+router.route("/").get(getProducts).post(auth, authAdmin, createProduct);
 router.route("/:id/review").post(auth, reviewProduct);
 // router.route("/best").get(bestProducts);
 router
   .route("/:id")
   .get(getProductById)
-  .put(auth, isAdmin, updateProduct)
-  .delete(auth, isAdmin, deleteProduct);
+  .put(auth, authAdmin, updateProduct)
+  .delete(auth, authAdmin, deleteProduct);
 
-module.exports = router;
+export default router;

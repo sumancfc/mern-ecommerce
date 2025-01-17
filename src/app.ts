@@ -6,6 +6,7 @@ import dotenv from "dotenv";
 
 import { errorHandler, errorNotFound } from "./middleware/errorHandler";
 import userRoutes from "./routes/user";
+import productRoutes from "./routes/product";
 
 dotenv.config();
 
@@ -14,9 +15,9 @@ const port: string | number = process.env.PORT || 8000;
 
 // Database Connection
 mongoose
-    .connect(process.env.DATABASE as string)
-    .then(() => console.log("Connected to DB"))
-    .catch((err) => console.log("Database Connection Error:", err));
+  .connect(process.env.DATABASE as string)
+  .then(() => console.log("Connected to DB"))
+  .catch((err) => console.log("Database Connection Error:", err));
 
 // Middleware
 app.use(express.json());
@@ -26,6 +27,7 @@ app.use(cors());
 
 // Route Middleware
 app.use("/api/users", userRoutes);
+app.use("/api/products", productRoutes);
 
 //intests->pm.environment.set('TOEKN',pm.response.json().token)
 

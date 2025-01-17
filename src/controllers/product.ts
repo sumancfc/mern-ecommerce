@@ -1,30 +1,39 @@
-const Product = require("../model/Product");
-const asyncHandler = require("express-async-handler");
+import { RequestHandler } from "express";
+import mongoose from "mongoose";
+import asyncHandler from "express-async-handler";
+import { Product, IProduct, IReview } from "../model/Product";
+import { IUser } from "../model/User";
 
-//Get all products
-exports.getProducts = asyncHandler(async (req, res) => {
-  const pageSize = 10;
-  const page = Number(req.query.pageNunber) || 1;
-  const keyword = req.query.keyword
+// Get All Products
+export const getProducts: RequestHandler = asyncHandler(async (req, res) => {
+  const { pageNumber, keyword } = req.query;
+
+  const pageSize: number = 10;
+  const page: number = Number(pageNumber) || 1;
+  const newKeyword = keyword
     ? {
         name: {
-          $regex: req.query.keyword,
+          $regex: keyword,
           $options: "i",
         },
       }
     : {};
 
-  const count = await Product.countDocuments({ ...keyword });
-  const products = await Product.find({ ...keyword })
+  const count: number = await Product.countDocuments({ ...newKeyword });
+  const products: IProduct[] = await Product.find({ ...newKeyword })
     .limit(pageSize)
     .skip(pageSize * (page - 1));
 
-  res.status(200).json({ products, page, pages: Math.ceil(count / pageSize) });
+  res
+    .status(200)
+    .json({ count, page, pages: Math.ceil(count / pageSize), products });
 });
 
-//Get product by id
-exports.getProductById = asyncHandler(async (req, res) => {
-  const product = await Product.findById(req.params.id);
+// Get Product by Id
+export const getProductById: RequestHandler = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  const product: IProduct | null = await Product.findById(id);
 
   if (product) {
     res.status(200).json(product);
@@ -33,9 +42,15 @@ exports.getProductById = asyncHandler(async (req, res) => {
   }
 });
 
-//Create Product
-exports.createProduct = asyncHandler(async (req, res) => {
-  const { name, price, brand, category, description, countInStock } = req.body;
+// Create Product
+export const createProduct: RequestHandler = asyncHandler(async (req, res) => {
+  const { name, price, brand, category, description, countInStock } =
+    req.body as IProduct;
+
+  if (!req.user?._id) {
+    res.status(401);
+    throw new Error("User not authenticated.");
+  }
 
   const product = new Product({
     name,
@@ -55,19 +70,14 @@ exports.createProduct = asyncHandler(async (req, res) => {
   res.json(createdProduct);
 });
 
-//Update Product
-exports.updateProduct = asyncHandler(async (req, res) => {
-  const {
-    name,
-    image,
-    price,
-    brand,
-    category,
-    description,
-    countInStock,
-  } = req.body;
+// Update Product
+export const updateProduct: RequestHandler = asyncHandler(async (req, res) => {
+  const { name, image, price, brand, category, description, countInStock } =
+    req.body as IProduct;
 
-  const product = await Product.findById(req.params.id);
+  const { id } = req.params;
+
+  const product = await Product.findById(id);
 
   if (product) {
     product.name = name;
@@ -82,58 +92,77 @@ exports.updateProduct = asyncHandler(async (req, res) => {
 
     res.json(updatedProduct);
   } else {
-    req.status(404);
     throw new Error("Product not found");
   }
 });
 
-//Delete Product
-exports.deleteProduct = asyncHandler(async (req, res) => {
-  const product = await Product.findById(req.params.id);
+// Delete Product
+export const deleteProduct: RequestHandler = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  const product = await Product.findById(id);
 
   if (product) {
-    await product.remove();
+    await product.deleteOne({ _id: id });
     res.status(200).json({ message: "Product Deleted" });
   } else {
     res.status(404).json({ message: "Product not found" });
   }
 });
 
-//Review Product
-exports.reviewProduct = asyncHandler(async (req, res) => {
+// Review Product
+export const reviewProduct: RequestHandler = asyncHandler(async (req, res) => {
   const { rating, comment } = req.body;
+  const { id } = req.params;
 
-  const product = await Product.findById(req.params.id);
-
-  if (product) {
-    const reviewExists = product.reviews.find(
-      (review) => review.user.toString() === req.user._id.toString()
-    );
-
-    if (reviewExists) {
-      res.status(400);
-      throw new Error("Product already reviewed");
-    }
-
-    const review = {
-      name: req.user.name,
-      rating: Number(rating),
-      comment,
-      user: req.user._id,
-    };
-
-    product.reviews.push(review);
-    product.numReviews = product.reviews.length;
-
-    product.rating =
-      product.reviews.reduce((acc, item) => acc + item.rating, 0) /
-      product.reviews.length;
-
-    await product.save();
-
-    res.status(201).json({ message: "Review Added" });
-  } else {
-    res.status(404);
-    throw new Error("Product not found");
+  // Check if the user is authenticated
+  if (!req.user || !req.user._id) {
+    throw new Error("User not authenticated.");
   }
+
+  // Type guard: assert that req.user exists
+  const user: IUser = req.user;
+
+  // Find the product by ID
+  const product: IProduct | null = await Product.findById(id);
+
+  if (!product) {
+    throw new Error("Product not found.");
+  }
+
+  // Ensure reviews array is initialized
+  if (!product.reviews) {
+    product.reviews = [];
+  }
+
+  // Check if the user has already reviewed this product
+  const reviewExists = product.reviews.find((review) =>
+    review.user.equals(user._id)
+  );
+
+  if (reviewExists) {
+    throw new Error("Product already reviewed.");
+  }
+
+  // Create a new review object
+  const review: Partial<IReview> = {
+    name: user.name,
+    rating: Number(rating),
+    comment,
+    user: new mongoose.Types.ObjectId(user._id),
+  };
+
+  // Add the review to the product's reviews array
+  product.reviews.push(review as IReview);
+  product.numReviews = product.reviews.length;
+
+  // Calculate the new average rating
+  product.rating =
+    product.reviews.reduce((acc, item) => acc + item.rating, 0) /
+    product.reviews.length;
+
+  // Save the product with the new review
+  await product.save();
+
+  res.json({ message: "Review Added" });
 });

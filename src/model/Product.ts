@@ -1,13 +1,19 @@
-const mongoose = require("mongoose");
-const { ObjectId } = mongoose.Schema;
+import { Document, Schema, Types, model } from "mongoose";
 
-const reviewSchema = new mongoose.Schema(
+export interface IReview extends Document {
+  name: string;
+  rating: number;
+  comment: string;
+  user: Types.ObjectId;
+}
+
+const reviewSchema = new Schema<IReview>(
   {
     name: { type: String, required: true },
     rating: { type: Number, required: true },
     comment: { type: String, required: true },
     user: {
-      type: ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
@@ -15,7 +21,21 @@ const reviewSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const productSchema = new mongoose.Schema(
+export interface IProduct extends Document {
+  name: string;
+  image: string;
+  price: number;
+  brand: string;
+  category: string;
+  description: string;
+  reviews?: IReview[];
+  rating?: number;
+  numReviews?: number;
+  countInStock: number;
+  user: Types.ObjectId;
+}
+
+const productSchema = new Schema<IProduct>(
   {
     name: {
       type: String,
@@ -43,9 +63,7 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    reviews: {
-      type: [reviewSchema],
-    },
+    reviews: [reviewSchema],
     rating: {
       type: Number,
       required: true,
@@ -62,7 +80,7 @@ const productSchema = new mongoose.Schema(
       default: 0,
     },
     user: {
-      type: ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
@@ -70,4 +88,4 @@ const productSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Product", productSchema);
+export const Product = model<IProduct>("Product", productSchema);
