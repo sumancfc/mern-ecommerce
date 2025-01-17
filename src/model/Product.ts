@@ -1,21 +1,21 @@
-const mongoose = require("mongoose");
-const { ObjectId } = mongoose.Schema;
+import {  Schema, model } from "mongoose";
+import { IReview, IProduct } from "../interfaces";
 
-const reviewSchema = new mongoose.Schema(
-  {
-    name: { type: String, required: true },
-    rating: { type: Number, required: true },
-    comment: { type: String, required: true },
-    user: {
-      type: ObjectId,
-      ref: "User",
-      required: true,
+const reviewSchema = new Schema<IReview>(
+    {
+        name: { type: String, required: true },
+        rating: { type: Number, required: true },
+        comment: { type: String, required: true },
+        user: {
+            type: Schema.Types.ObjectId,
+            ref: "User",
+            required: true,
+        },
     },
-  },
-  { timestamps: true }
+    { timestamps: true }
 );
 
-const productSchema = new mongoose.Schema(
+const productSchema = new Schema<IProduct>(
   {
     name: {
       type: String,
@@ -43,9 +43,7 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    reviews: {
-      type: [reviewSchema],
-    },
+    reviews: [reviewSchema],
     rating: {
       type: Number,
       required: true,
@@ -62,7 +60,7 @@ const productSchema = new mongoose.Schema(
       default: 0,
     },
     user: {
-      type: ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
@@ -70,4 +68,4 @@ const productSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Product", productSchema);
+export const Product = model<IProduct>("Product", productSchema);

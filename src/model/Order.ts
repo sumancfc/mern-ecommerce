@@ -1,10 +1,10 @@
-const mongoose = require("mongoose");
-const { ObjectId } = mongoose.Schema;
+import {Schema, model} from "mongoose";
+import { IOrder } from "../interfaces";
 
-const orderSchema = mongoose.Schema(
+const orderSchema = new Schema<IOrder>(
   {
     user: {
-      type: ObjectId,
+      type: Schema.Types.ObjectId,
       required: true,
       ref: "User",
     },
@@ -15,7 +15,7 @@ const orderSchema = mongoose.Schema(
         image: { type: String, required: true },
         price: { type: Number, required: true },
         product: {
-          type: ObjectId,
+          type: Schema.Types.ObjectId,
           required: true,
           ref: "Product",
         },
@@ -77,4 +77,4 @@ const orderSchema = mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("Order", orderSchema);
+export const Order = model<IOrder>("Order", orderSchema);

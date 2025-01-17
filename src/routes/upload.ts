@@ -1,4 +1,4 @@
-const path = require("path");
+/*const path = require("path");
 const express = require("express");
 const multer = require("multer");
 const router = express.Router();
@@ -38,4 +38,4 @@ router.post("/", upload.single("image"), (req, res) => {
   res.send(`/${req.file.path}`);
 });
 
-module.exports = router;
+module.exports = router;*/
