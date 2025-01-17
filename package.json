@@ -7,7 +7,7 @@
     "start": "node src/app",
     "server": "nodemon src/app",
     "client": "npm start --prefix client",
-    "dev": "concurrently \"npm run client\" \"npm run server\"",
+    "dev": "concurrently \"npm run client\" \"npm run src\"",
     "data:import": "node src/seeder",
     "data:destroy": "node src/seeder -d"
   },
