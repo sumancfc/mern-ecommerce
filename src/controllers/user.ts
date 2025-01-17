@@ -4,47 +4,48 @@ import { User } from "../model/User";
 import {  AuthenticatedRequest, Register, Login } from "../interfaces";
 import { generateToken } from "../utils/generateToken";
 import { formatUserResponse, handleNotFound } from "../utils"
+import { BadRequestError, UnauthorizedError } from "../utils/errors";
 
 // Register User
 export const register: RequestHandler = asyncHandler(async (req, res) => {
-  const { name, email, password } = req.body as Register;
+  const userData: Register = req.body;
 
-  const userExists = await User.findOne({ email });
+  if (!userData.name || !userData.email || !userData.password) {
+    throw new BadRequestError("Name, Email and password are required.");
+  }
+
+  const userExists = await User.findOne({ email: userData.email });
 
   if (userExists) {
-    res.status(400);
-    throw new Error("User already exists.");
+    throw new BadRequestError("User already exists.");
   }
 
-  const user = await User.create({ name, email, password });
+  const user = new User({ ...userData});
 
-  if (user) {
-    res.status(201).json(formatUserResponse(user));
-  } else {
-    res.status(400);
-    throw new Error("Invalid user data.");
-  }
+  const createUser = await user.save();
+
+  res.status(201).json(formatUserResponse(createUser));
 });
 
 // Login User
 export const login: RequestHandler = asyncHandler(async (req, res) => {
-  const { email, password } = req.body as Login;
+  const loginData: Login = req.body;
 
-  const user = await User.findOne({ email });
+  if (!loginData.email || !loginData.password) {
+    throw new BadRequestError("Email and password are required.");
+  }
 
-  if (user && (await user.matchPassword(password))) {
+  const user = await User.findOne({ email: loginData.email });
+
+  if (user && (await user.matchPassword(loginData.password))) {
     res
       .status(200)
       .json({
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        isAdmin: user.isAdmin,
+        ...formatUserResponse(user),
         token: generateToken(user._id),
       });
   } else {
-    res.status(401);
-    throw new Error("Invalid email or password.");
+    throw new BadRequestError("Invalid email or password.");
   }
 });
 
@@ -58,17 +59,13 @@ export const getAllUsers: RequestHandler = asyncHandler(async (req, res) => {
 export const getUserProfile = asyncHandler(
   async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     if (!req.user?._id) {
-      res.status(401); // Unauthorized
-      throw new Error("User not authenticated.");
+      throw new UnauthorizedError("User not authenticated.");
     }
 
     const user = await User.findById(req.user._id);
 
-    if (user) {
+    if (handleNotFound(user, "User", res)) {
       res.status(200).json(formatUserResponse(user));
-    } else {
-      res.status(404);
-      throw new Error("User not found.");
     }
   }
 );
@@ -77,13 +74,12 @@ export const getUserProfile = asyncHandler(
 export const updateUserProfile = asyncHandler(
   async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     if (!req.user?._id) {
-      res.status(401); // Unauthorized
-      throw new Error("User not authenticated.");
+      throw new UnauthorizedError("User not authenticated.");
     }
 
     const user = await User.findById(req.user._id);
 
-    if (user) {
+    if (handleNotFound(user, "user", res)) {
       user.name = req.body.name || user.name;
       user.email = req.body.email || user.email;
       if (req.body.password) {
@@ -91,10 +87,8 @@ export const updateUserProfile = asyncHandler(
       }
 
       const updatedUser = await user.save();
+
       res.status(200).json(formatUserResponse(updatedUser));
-    } else {
-      res.status(404);
-      throw new Error("User not found.");
     }
   }
 );
@@ -103,11 +97,8 @@ export const updateUserProfile = asyncHandler(
 export const getUserById: RequestHandler = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id);
 
-  if (user) {
+  if (handleNotFound(user, "User", res)) {
     res.status(200).json(user);
-  } else {
-    res.status(404);
-    throw new Error("User not found.");
   }
 });
 
@@ -115,7 +106,7 @@ export const getUserById: RequestHandler = asyncHandler(async (req, res) => {
 export const updateUser: RequestHandler = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id);
 
-  if (user) {
+  if (handleNotFound(user, "User", res)) {
     user.name = req.body.name || user.name;
     user.email = req.body.email || user.email;
     user.isAdmin = req.body.isAdmin ?? user.isAdmin;
@@ -123,9 +114,6 @@ export const updateUser: RequestHandler = asyncHandler(async (req, res) => {
     const updatedUser = await user.save();
 
     res.status(200).json(formatUserResponse(updatedUser));
-  } else {
-    res.status(404);
-    throw new Error("User not found.");
   }
 });
 
@@ -133,11 +121,9 @@ export const updateUser: RequestHandler = asyncHandler(async (req, res) => {
 export const deleteUser: RequestHandler = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id);
 
-  if (user) {
+  if (handleNotFound(user, "User", res)) {
     await user.deleteOne({ _id: req.params.id });
+
     res.status(200).json({ message: "User deleted successfully." });
-  } else {
-    res.status(404);
-    throw new Error("User not found.");
   }
 });

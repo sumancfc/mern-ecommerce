@@ -1,33 +1,5 @@
-import {Schema, Document, model, Types} from "mongoose";
-
-export interface IOrderItem {
-    name: string;
-    qty: number;
-    image: string;
-    price: number;
-    product: Schema.Types.ObjectId;
-}
-
-export interface IShippingAddress {
-    address:string;
-    city: string;
-    postalCode: string;
-    country: string;
-}
-
-export interface IOrder extends Document {
-    user: Types.ObjectId;
-    orderItems: IOrderItem[];
-    shippingAddress: IShippingAddress;
-    paymentMethod: string;
-    taxPrice: number;
-    shippingPrice: number;
-    totalPrice: number;
-    isPaid: boolean;
-    paidAt?: Date;
-    isDelivered: boolean;
-    deliveredAt?: Date;
-}
+import {Schema, model} from "mongoose";
+import { IOrder } from "../interfaces";
 
 const orderSchema = new Schema<IOrder>(
   {

@@ -3,13 +3,13 @@ import asyncHandler from "express-async-handler";
 import { Order } from "../model/Order";
 import { IUser, AuthenticatedRequest, OrderRequestBody } from "../interfaces";
 import { handleNotFound } from "../utils";
+import { UnauthorizedError } from "../utils/errors";
 
 // Create Order
 export const createOrder = asyncHandler(async (req: AuthenticatedRequest
-                                               , res: Response) => {
+                                               , res: Response): Promise<void> => {
   if (!req.user?._id) {
-    res.status(401);
-    throw new Error("User not authenticated.");
+    throw new UnauthorizedError("User not authenticated.");
   }
 
   const orderData = req.body as OrderRequestBody;
@@ -30,7 +30,7 @@ export const createOrder = asyncHandler(async (req: AuthenticatedRequest
 });
 
 // Get Order By Id
-export const getOrderById = asyncHandler(async (req: Request, res: Response) => {
+export const getOrderById = asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const order = await Order.findById(req.params.id).populate<{ user: IUser }>("user", "name email");
 
   if (handleNotFound(order, "Order", res)) {
@@ -39,7 +39,7 @@ export const getOrderById = asyncHandler(async (req: Request, res: Response) => 
 });
 
 // Update Order to Paid
-export const updateOrderToPaid = asyncHandler(async (req: Request, res: Response) => {
+export const updateOrderToPaid = asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const order = await Order.findById(req.params.id);
 
   if (handleNotFound(order, "Order", res)) {
@@ -53,7 +53,7 @@ export const updateOrderToPaid = asyncHandler(async (req: Request, res: Response
 });
 
 // Update Order to Delivered
-export const updateOrderToDelivered = asyncHandler(async (req: Request, res: Response) => {
+export const updateOrderToDelivered = asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const order = await Order.findById(req.params.id);
 
   if (handleNotFound(order, "Order", res)) {
@@ -67,18 +67,19 @@ export const updateOrderToDelivered = asyncHandler(async (req: Request, res: Res
 });
 
 // Order List
-export const orderList = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+export const orderList = asyncHandler(async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   if (!req.user?._id) {
-    res.status(401);
-    throw new Error("User not authenticated.");
+    throw new UnauthorizedError("User not authenticated.");
   }
 
   const orders = await Order.find({ user: req.user._id });
+
   res.status(200).json(orders);
 });
 
 // Get All Orders
-export const getAllOrders = asyncHandler(async (req: Request, res: Response) => {
+export const getAllOrders = asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const orders = await Order.find({}).populate<{ user: IUser }>("user", "id name");
+
   res.status(200).json(orders);
 });

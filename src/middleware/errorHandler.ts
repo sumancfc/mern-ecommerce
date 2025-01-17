@@ -5,7 +5,7 @@ export const errorNotFound = (
   req: Request,
   res: Response,
   next: NextFunction
-) => {
+): void => {
   const error = new Error(`Not found - ${req.originalUrl}`);
   res.status(404);
   next(error);
@@ -17,7 +17,7 @@ export const errorHandler = (
   req: Request,
   res: Response,
   next: NextFunction
-) => {
+): void => {
   const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
 
   // Send response with error details

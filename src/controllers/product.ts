@@ -1,9 +1,10 @@
 import { RequestHandler } from "express";
 import mongoose from "mongoose";
 import asyncHandler from "express-async-handler";
-import { Product, } from "../model/Product";
+import { Product } from "../model/Product";
 import { IUser, IProduct, IReview, ProductRequestBody, ProductRequestBodyWithImage } from "../interfaces";
 import { handleNotFound } from "../utils";
+import { BadRequestError, UnauthorizedError } from "../utils/errors";
 
 // Get All Products
 export const getProducts: RequestHandler = asyncHandler(async (req, res) => {
@@ -44,8 +45,7 @@ export const getProductById: RequestHandler = asyncHandler(async (req, res) => {
 // Create Product
 export const createProduct: RequestHandler = asyncHandler(async (req, res) => {
   if (!req.user?._id) {
-    res.status(401);
-    throw new Error("User not authenticated.");
+    throw new UnauthorizedError("User not authenticated.");
   }
 
   const productData = req.body as ProductRequestBody;
@@ -99,7 +99,7 @@ export const reviewProduct: RequestHandler = asyncHandler(async (req, res) => {
 
   // Check if the user is authenticated
   if (!req.user || !req.user._id) {
-    throw new Error("User not authenticated.");
+    throw new UnauthorizedError("User not authenticated.");
   }
 
   // Type guard: assert that req.user exists
@@ -123,7 +123,7 @@ export const reviewProduct: RequestHandler = asyncHandler(async (req, res) => {
   );
 
   if (reviewExists) {
-    throw new Error("Product already reviewed.");
+    throw new BadRequestError("Product already reviewed.");
   }
 
   // Create a new review object

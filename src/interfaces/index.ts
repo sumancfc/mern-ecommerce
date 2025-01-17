@@ -1,6 +1,5 @@
 import { Request } from "express";
-import {Document, Types} from "mongoose";
-import { IOrderItem, IShippingAddress } from "../model/Order";
+import {Document, Schema, Types} from "mongoose";
 
 // JWT Token
 export interface JwtPayload {
@@ -75,6 +74,35 @@ export interface ProductRequestBodyWithImage extends ProductRequestBody {
 }
 
 // Order interface
+export interface IOrderItem {
+    name: string;
+    qty: number;
+    image: string;
+    price: number;
+    product: Schema.Types.ObjectId;
+}
+
+export interface IShippingAddress {
+    address:string;
+    city: string;
+    postalCode: string;
+    country: string;
+}
+
+export interface IOrder extends Document {
+    user: Types.ObjectId;
+    orderItems: IOrderItem[];
+    shippingAddress: IShippingAddress;
+    paymentMethod: string;
+    taxPrice: number;
+    shippingPrice: number;
+    totalPrice: number;
+    isPaid: boolean;
+    paidAt?: Date;
+    isDelivered: boolean;
+    deliveredAt?: Date;
+}
+
 export interface OrderRequestBody {
     orderItems: IOrderItem[];
     shippingAddress: IShippingAddress;
