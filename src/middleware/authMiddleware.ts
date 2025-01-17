@@ -1,20 +1,18 @@
-import {Request, Response, NextFunction, RequestHandler} from "express";
+import { Request, RequestHandler, Response } from "express";
 import jwt from "jsonwebtoken";
 import asyncHandler from "express-async-handler";
-import { User, IUser } from "../model/User";
-
-interface JwtPayload {
-  id: string;
-}
+import { User } from "../model/User";
+import { JwtPayload, IUser } from "../interfaces";
 
 declare global {
-  namespace Express {
-    interface Request {
-      user?: IUser;
+    namespace Express {
+        interface Request {
+            user?: IUser;
+        }
     }
-  }
 }
 
+// Get Token from Header
 const getTokenFromHeader = (req: Request): string | null => {
   const authHeader = req.headers.authorization;
   if (authHeader && authHeader.startsWith("Bearer ")) {
@@ -23,6 +21,7 @@ const getTokenFromHeader = (req: Request): string | null => {
   return null;
 };
 
+// Verify and Decode Token
 const verifyAndDecodeToken = (token: string): JwtPayload => {
   const secret = process.env.JWT_SECRET_KEY as string;
 
@@ -35,6 +34,7 @@ const verifyAndDecodeToken = (token: string): JwtPayload => {
 
 const getUserFromToken = async (userId: string): Promise<IUser> => {
   const user = await User.findById(userId).select("-password");
+
   if (!user) {
     throw new Error("User not found");
   }
@@ -70,7 +70,7 @@ export const authAdmin: RequestHandler =async (
   req,
   res,
   next
-):Promise<void> => {
+) => {
   if (req.user && req.user.isAdmin) {
     next();
   } else {

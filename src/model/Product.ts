@@ -1,39 +1,19 @@
-import { Document, Schema, Types, model } from "mongoose";
-
-export interface IReview extends Document {
-  name: string;
-  rating: number;
-  comment: string;
-  user: Types.ObjectId;
-}
+import {  Schema, model } from "mongoose";
+import { IReview, IProduct } from "../interfaces";
 
 const reviewSchema = new Schema<IReview>(
-  {
-    name: { type: String, required: true },
-    rating: { type: Number, required: true },
-    comment: { type: String, required: true },
-    user: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
+    {
+        name: { type: String, required: true },
+        rating: { type: Number, required: true },
+        comment: { type: String, required: true },
+        user: {
+            type: Schema.Types.ObjectId,
+            ref: "User",
+            required: true,
+        },
     },
-  },
-  { timestamps: true }
+    { timestamps: true }
 );
-
-export interface IProduct extends Document {
-  name: string;
-  image: string;
-  price: number;
-  brand: string;
-  category: string;
-  description: string;
-  reviews?: IReview[];
-  rating?: number;
-  numReviews?: number;
-  countInStock: number;
-  user: Types.ObjectId;
-}
 
 const productSchema = new Schema<IProduct>(
   {

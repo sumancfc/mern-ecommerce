@@ -1,8 +1,9 @@
 import { RequestHandler } from "express";
 import mongoose from "mongoose";
 import asyncHandler from "express-async-handler";
-import { Product, IProduct, IReview } from "../model/Product";
-import { IUser } from "../model/User";
+import { Product, } from "../model/Product";
+import { IUser, IProduct, IReview, ProductRequestBody, ProductRequestBodyWithImage } from "../interfaces";
+import { handleNotFound } from "../utils";
 
 // Get All Products
 export const getProducts: RequestHandler = asyncHandler(async (req, res) => {
@@ -35,64 +36,46 @@ export const getProductById: RequestHandler = asyncHandler(async (req, res) => {
 
   const product: IProduct | null = await Product.findById(id);
 
-  if (product) {
+  if (handleNotFound(product, "Product", res)) {
     res.status(200).json(product);
-  } else {
-    res.status(404).json({ message: "Product not found" });
   }
 });
 
 // Create Product
 export const createProduct: RequestHandler = asyncHandler(async (req, res) => {
-  const { name, price, brand, category, description, countInStock } =
-    req.body as IProduct;
-
   if (!req.user?._id) {
     res.status(401);
     throw new Error("User not authenticated.");
   }
 
+  const productData = req.body as ProductRequestBody;
+
   const product = new Product({
-    name,
+    ...productData,
     image: "/images/playstation.jpg",
-    price,
-    brand,
-    category,
-    description,
-    rating: 0,
-    numReviews: 0,
-    countInStock,
     user: req.user._id,
   });
 
   const createdProduct = await product.save();
 
-  res.json(createdProduct);
+  res.status(201).json(createdProduct);
 });
 
 // Update Product
 export const updateProduct: RequestHandler = asyncHandler(async (req, res) => {
-  const { name, image, price, brand, category, description, countInStock } =
-    req.body as IProduct;
+  const productData =
+    req.body as ProductRequestBodyWithImage;
 
   const { id } = req.params;
 
   const product = await Product.findById(id);
 
-  if (product) {
-    product.name = name;
-    product.image = image;
-    product.price = price;
-    product.brand = brand;
-    product.category = category;
-    product.description = description;
-    product.countInStock = countInStock;
+  if (handleNotFound(product, "Product", res)) {
+    Object.assign(product, productData);
 
     const updatedProduct = await product.save();
 
-    res.json(updatedProduct);
-  } else {
-    throw new Error("Product not found");
+    res.status(200).json(updatedProduct);
   }
 });
 
@@ -102,11 +85,10 @@ export const deleteProduct: RequestHandler = asyncHandler(async (req, res) => {
 
   const product = await Product.findById(id);
 
-  if (product) {
+  if (handleNotFound(product, "Product", res)) {
     await product.deleteOne({ _id: id });
+
     res.status(200).json({ message: "Product Deleted" });
-  } else {
-    res.status(404).json({ message: "Product not found" });
   }
 });
 

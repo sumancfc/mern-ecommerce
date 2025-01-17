@@ -1,36 +1,9 @@
-import { Request, Response, RequestHandler } from "express";
+import { Response, RequestHandler } from "express";
 import asyncHandler from "express-async-handler";
-import { User, IUser } from "../model/User";
+import { User } from "../model/User";
+import {  AuthenticatedRequest, Register, Login } from "../interfaces";
 import { generateToken } from "../utils/generateToken";
-
-interface Register {
-  name: string;
-  email: string;
-  password: string;
-}
-
-interface Login {
-  email: string;
-  password: string;
-}
-
-interface UserResponse {
-  _id: string;
-  name: string;
-  email: string;
-  isAdmin: boolean;
-}
-
-interface RequestWithUser extends Request {
-  user?: IUser;
-}
-
-const formatUserResponse = (user: IUser): UserResponse => ({
-  _id: user._id,
-  name: user.name,
-  email: user.email,
-  isAdmin: user.isAdmin,
-});
+import { formatUserResponse, handleNotFound } from "../utils"
 
 // Register User
 export const register: RequestHandler = asyncHandler(async (req, res) => {
@@ -83,7 +56,7 @@ export const getAllUsers: RequestHandler = asyncHandler(async (req, res) => {
 
 // Get User Profile
 export const getUserProfile = asyncHandler(
-  async (req: RequestWithUser, res: Response): Promise<void> => {
+  async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     if (!req.user?._id) {
       res.status(401); // Unauthorized
       throw new Error("User not authenticated.");
@@ -102,7 +75,7 @@ export const getUserProfile = asyncHandler(
 
 // Update User Profile
 export const updateUserProfile = asyncHandler(
-  async (req: RequestWithUser, res: Response): Promise<void> => {
+  async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     if (!req.user?._id) {
       res.status(401); // Unauthorized
       throw new Error("User not authenticated.");
