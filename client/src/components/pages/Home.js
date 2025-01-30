@@ -6,11 +6,10 @@ import { Alert, Col, Row } from "react-bootstrap";
 import { productList } from "../../actions/productAction";
 import Loader from "../common/Loader";
 import Paginate from "../common/Paginate";
+import { useParams } from "react-router-dom";
 
-const Home = ({ match }) => {
-  const keyword = match.params.keyword;
-
-  const pageNumber = match.params.pageNumber || 1;
+const Home = () => {
+  const { keyword, pageNumber = 1 } = useParams();
 
   const dispatch = useDispatch();
 
