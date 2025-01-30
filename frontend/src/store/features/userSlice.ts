@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios, { AxiosError } from "axios";
 import { KnownError } from "@/interfaces";
 import {
@@ -8,11 +8,19 @@ import {
   CurrentUser,
 } from "@/interfaces/user";
 
+const loadUserFromStorage = (): CurrentUser | null => {
+  if (typeof window !== "undefined") {
+    const userInfo = localStorage.getItem("userInfo");
+    return userInfo ? JSON.parse(userInfo) : null;
+  }
+  return null;
+};
+
 const initialState: UserState = {
-  currentUser: null,
+  currentUser: loadUserFromStorage(),
   loading: false,
   error: null,
-  isLoggedIn: false,
+  isLoggedIn: !!loadUserFromStorage(),
 };
 
 export const signupUser = createAsyncThunk<
@@ -21,14 +29,17 @@ export const signupUser = createAsyncThunk<
   { rejectValue: string }
 >("user/signup", async (userData, { rejectWithValue }) => {
   try {
-    const response = await axios.post(
+    const response = await axios.post<CurrentUser>(
       "http://localhost:8000/api/users",
       userData
     );
     return response.data;
   } catch (err) {
-    const error = err as AxiosError<{ message: string }>;
-    return rejectWithValue(error.response?.data.message || "Signup failed");
+    const error = err as AxiosError<KnownError>;
+    if (error.response && error.response.data) {
+      return rejectWithValue(error.response.data.message);
+    }
+    return rejectWithValue("An unknown error occurred");
   }
 });
 
@@ -38,11 +49,15 @@ export const loginUser = createAsyncThunk<
   { rejectValue: string }
 >("user/login", async (loginData, { rejectWithValue }) => {
   try {
-    const response = await axios.post(
+    const { data } = await axios.post<CurrentUser>(
       "http://localhost:8000/api/users/login",
       loginData
     );
-    return response.data;
+    localStorage.setItem("userInfo", JSON.stringify(data));
+    document.cookie = `authToken=${data.token}; path=/; max-age=${
+      30 * 24 * 60 * 60
+    }; SameSite=Strict; Secure`;
+    return data;
   } catch (err) {
     const error = err as AxiosError<KnownError>;
     if (error.response && error.response.data) {
@@ -59,7 +74,19 @@ const userSlice = createSlice({
     logout: (state) => {
       state.currentUser = null;
       state.isLoggedIn = false;
-      localStorage.removeItem("token");
+      localStorage.removeItem("userInfo");
+      document.cookie =
+        "authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+    },
+    setUser: (state, action: PayloadAction<CurrentUser | null>) => {
+      state.currentUser = action.payload;
+      state.isLoggedIn = !!action.payload;
+      if (action.payload) {
+        localStorage.setItem("userInfo", JSON.stringify(action.payload));
+        document.cookie = `authToken=${action.payload.token}; path=/; max-age=${
+          30 * 24 * 60 * 60
+        }; SameSite=Strict; Secure`;
+      }
     },
   },
   extraReducers: (builder) => {
@@ -68,11 +95,8 @@ const userSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(signupUser.fulfilled, (state, action) => {
+      .addCase(signupUser.fulfilled, (state) => {
         state.loading = false;
-        state.currentUser = action.payload;
-        state.isLoggedIn = true;
-        localStorage.setItem("token", action.payload._id);
       })
       .addCase(signupUser.rejected, (state, action) => {
         state.loading = false;
@@ -86,7 +110,6 @@ const userSlice = createSlice({
         state.loading = false;
         state.currentUser = action.payload;
         state.isLoggedIn = true;
-        localStorage.setItem("token", action.payload._id);
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
@@ -95,6 +118,6 @@ const userSlice = createSlice({
   },
 });
 
-export const { logout } = userSlice.actions;
+export const { logout, setUser } = userSlice.actions;
 
 export default userSlice.reducer;

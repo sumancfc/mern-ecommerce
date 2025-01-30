@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { useRouter } from "next/navigation";
 import { Navbar, Nav, Container, NavDropdown } from "react-bootstrap";
 import Link from "next/link";
@@ -10,11 +11,17 @@ import Search from "./Search";
 const Header: React.FC = () => {
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const { currentUser } = useAppSelector((state) => state.user);
+  const { currentUser, isLoggedIn, loading } = useAppSelector(
+    (state) => state.user
+  );
 
   const logoutHandler = () => {
-    dispatch(logout());
-    router.push("/login");
+    try {
+      dispatch(logout());
+      router.push("/login");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
   };
 
   return (
@@ -26,7 +33,7 @@ const Header: React.FC = () => {
         <Navbar.Toggle aria-controls='basic-navbar-nav' />
 
         <Navbar.Collapse id='basic-navbar-nav'>
-          <Nav className='mr-auto'>
+          <Nav className='me-auto'>
             <Link href='/' passHref legacyBehavior>
               <Nav.Link>Home</Nav.Link>
             </Link>
@@ -34,7 +41,9 @@ const Header: React.FC = () => {
               <Nav.Link>Cart</Nav.Link>
             </Link>
 
-            {currentUser ? (
+            {loading ? (
+              <Nav.Link disabled>Loading...</Nav.Link>
+            ) : isLoggedIn && currentUser ? (
               <NavDropdown title={currentUser.name} id='username'>
                 <Link href='/profile' passHref legacyBehavior>
                   <NavDropdown.Item>Profile</NavDropdown.Item>
@@ -51,7 +60,7 @@ const Header: React.FC = () => {
               </Link>
             )}
 
-            {currentUser && currentUser.isAdmin && (
+            {isLoggedIn && currentUser?.isAdmin && (
               <NavDropdown title='Admin' id='adminmenu'>
                 <Link href='/admin/userlist' passHref legacyBehavior>
                   <NavDropdown.Item>User List</NavDropdown.Item>

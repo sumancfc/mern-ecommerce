@@ -1,12 +1,13 @@
 "use client";
 
 import React from "react";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "./globals.css";
 import { Container } from "react-bootstrap";
+import { ToastContainer } from "react-toastify";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { StoreProvider } from "./StoreProvider";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "./globals.css";
 
 export default function RootLayout({
   children,
@@ -18,6 +19,7 @@ export default function RootLayout({
       <body>
         <StoreProvider>
           <Header />
+          <ToastContainer />
           <main className='py-5'>
             <Container>{children}</Container>
           </main>

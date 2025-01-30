@@ -2,13 +2,11 @@ export interface SignupUser {
   name: string;
   email: string;
   password: string;
-  agreedToTerms: boolean;
 }
 
 export interface LoginUser {
   email: string;
   password: string;
-  keepMeLoggedIn?: boolean;
 }
 
 export interface CurrentUser {
