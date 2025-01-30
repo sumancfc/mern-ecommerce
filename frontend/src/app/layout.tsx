@@ -3,8 +3,9 @@
 import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./globals.css";
-import Header from "@/components/Header";
 import { Container } from "react-bootstrap";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import { StoreProvider } from "./StoreProvider";
 
 export default function RootLayout({
@@ -20,6 +21,7 @@ export default function RootLayout({
           <main className='py-5'>
             <Container>{children}</Container>
           </main>
+          <Footer />
         </StoreProvider>
       </body>
     </html>

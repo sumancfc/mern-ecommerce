@@ -36,24 +36,21 @@ export const loginUser = createAsyncThunk<
   CurrentUser,
   LoginUser,
   { rejectValue: string }
->(
-  "user/login",
-  async ({ email, password, keepMeLoggedIn }, { rejectWithValue }) => {
-    try {
-      const response = await axios.post(
-        "http://localhost:8000/api/users/login",
-        { email, password, keepMeLoggedIn }
-      );
-      return response.data;
-    } catch (err) {
-      const error = err as AxiosError<KnownError>;
-      if (error.response && error.response.data) {
-        return rejectWithValue(error.response.data.message);
-      }
-      return rejectWithValue("An unknown error occurred");
+>("user/login", async (loginData, { rejectWithValue }) => {
+  try {
+    const response = await axios.post(
+      "http://localhost:8000/api/users/login",
+      loginData
+    );
+    return response.data;
+  } catch (err) {
+    const error = err as AxiosError<KnownError>;
+    if (error.response && error.response.data) {
+      return rejectWithValue(error.response.data.message);
     }
+    return rejectWithValue("An unknown error occurred");
   }
-);
+});
 
 const userSlice = createSlice({
   name: "user",

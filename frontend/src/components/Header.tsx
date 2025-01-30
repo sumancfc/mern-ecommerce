@@ -1,11 +1,11 @@
 "use client";
 
-import React from "react";
 import { useRouter } from "next/navigation";
 import { Navbar, Nav, Container, NavDropdown } from "react-bootstrap";
 import Link from "next/link";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { logout } from "@/store/features/userSlice";
+import Search from "./Search";
 
 const Header: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -65,6 +65,7 @@ const Header: React.FC = () => {
               </NavDropdown>
             )}
           </Nav>
+          <Search />
         </Navbar.Collapse>
       </Container>
     </Navbar>
