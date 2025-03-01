@@ -4,7 +4,7 @@ A full-stack web application built using the MERN (MongoDB, Express, React, Node
 
 ## Technologies Used
 
-- **Frontend**: React
+- **Frontend**: React, Next.js
 - **Backend**: Node.js, Express, TypeScript
 - **Database**: MongoDB
 - **Authentication**: JSON Web Token (JWT)
